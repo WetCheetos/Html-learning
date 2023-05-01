@@ -1,0 +1,502 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <title>Blockpost</title>
+    <script type="text/javascript" src="4399.js"></script>
+    <script>
+        window.config = {
+            loader: 'unity',
+            debug: false,
+            maxRatio: 16 / 9,
+            minRatio: 9 / 16,
+
+            title: 'Block Post',
+
+            thumbnail: 'thumb.png',
+            numScreenshots: 4,
+
+			unityVersion: '2018.4.32f1',
+            unityWebglBuildUrl: 'webgl_poki.json',
+            unityWebglLoaderUrl: '1UnityLoader.js',
+
+            // **** Optional Settings ****
+            fileSize: 22,
+            loadingComments: ['Loading...'],
+            cachedDecompressedFileSizes: {
+                'webgl_poki.data.unityweb': 12379304,
+                'webgl_poki.wasm.code.unityweb': 9776558,
+                'webgl_poki.wasm.framework.unityweb': 100499,
+            },
+            screenshotsVersion: 2,
+            //
+        };
+    </script>
+
+
+<script src="./poki-sdk-core.js" type="text/javascript"></script><style type="text/css">* {
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #002B50;
+    font-family: Torus, Arial, Helvetica, sans-serif;
+    color: #fff;
+}
+
+#game-container {
+    position: absolute !important;
+    left: 50%;
+    top: 50%;
+    display: none;
+}
+
+#game,
+#game canvas {
+    width: 100%;
+    height: 100%;
+}
+
+#loader {
+    width: 100%;
+    height: 100%;
+}
+
+/**
+   * Slideshow
+   */
+
+#slideshow {
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    display: flex;
+    user-select: none;
+}
+
+@font-face {
+    font-family: Torus;
+    src:
+        url('fonts/torus-bold-webfont.woff2') format('woff2'),
+        url('fonts/torus-bold-webfont.woff') format('woff');
+    font-style: bold;
+    font-weight: 700;
+}
+
+/**
+   * Slideshow - Top section
+   */
+#progress-spinner{
+    margin-left: 0;
+    margin-top: 0;
+    left: 0px;
+    display:none;
+    transform: translate(100%, -50%);
+    width:10vh;
+}
+#progress-spinner >div{
+    width:2vh;
+    height:2vh;
+}
+#thumbnail {
+    box-shadow: 0 1vh 2vh rgba(0, 0, 0, 0.4);
+    /* box-shadow: 0 6px 12px rgba(0, 0, 0, 0.24); */
+    border-radius: 16.667%;
+}
+
+#slideshow-top {
+    display: flex;
+    margin: 2.5vh 0;
+}
+
+#slideshow-top-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+#game-title, #progress-comment {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    font-size:2vh;
+}
+
+#progress-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    transition: 0.2s ease-out all;
+}
+
+#progress-container.done {
+    opacity: 0;
+}
+
+#progress-bar {
+    background: #fff;
+    width: 100%;
+    overflow: hidden;
+}
+
+#progress-fill {
+    background: #3CF7DC;
+    height: 100%;
+    transition: 0.2s ease-out all;
+    animation-name: fillColor;
+    animation-duration: 3.5s;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+}
+
+@keyframes fillColor {
+    0% {
+        background-color: #3CF7DC;
+    }
+
+    25% {
+        background-color: #FFA9BE;
+    }
+
+    50% {
+        background-color: #FFDC00;
+    }
+
+    75% {
+        background-color: #E0AEF5;
+    }
+
+    100% {
+        background-color: #3CF7DC;
+    }
+}
+
+@media (orientation: portrait) {
+    #thumbnail {
+        margin-right: 2.4vh;
+    }
+
+    #game-title h1 {
+        font-size: 2vh;
+    }
+
+    #slideshow-top {
+        width: 70vw;
+    }
+
+    #progress-bar {
+        height: 1vh;
+        border-radius: 0.5vh;
+    }
+
+    #progress-fill {
+        border-radius: 0.5vh;
+    }
+
+    #thumbnail {
+        width: 5vh;
+        height: 5vh;
+    }
+
+    #progress-amount {
+        font-size: 2vh;
+        margin-left: 1.5vh;
+        width: 3vh;
+    }
+}
+
+@media (orientation: landscape) {
+    #thumbnail {
+        margin-right: 3vh;
+    }
+
+    #game-title h1 {
+        font-size: 3vh;
+    }
+
+    #slideshow-top {
+        width: 50vw;
+    }
+
+    #progress-bar {
+        height: 1.2vh;
+        border-radius: 0.6vh;
+    }
+
+    #progress-fill {
+        border-radius: 0.6vh;
+    }
+
+    #thumbnail {
+        width: 7.5vh;
+        height: 7.5vh;
+    }
+
+    #progress-amount {
+        font-size: 2.5vh;
+        margin-left: 1.875vh;
+        width: 3.75vh;
+    }
+}
+
+/**
+   * Slideshow - Images section
+   */
+
+#slideshow-images {
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+}
+
+#slideshow-images .image {
+    position: absolute;
+    box-shadow: 0 2.4vh 3.6vh rgba(0, 0, 0, 0.4);
+    transition-property: transform;
+    transition-timing-function: ease-in-out;
+    perspective: 1000px;
+    left: 0;
+    overflow: hidden;
+    /* border: 1vh solid; */
+}
+
+#slideshow-images .image img {
+    width: 100%;
+    height: 100%;
+}
+
+#slideshow-images .image:nth-of-type(1n) {
+    border-color: #3BE8B0;
+}
+
+#slideshow-images .image:nth-of-type(2n) {
+    border-color: #FF6D92;
+}
+
+#slideshow-images .image:nth-of-type(3n) {
+    border-color: #A177FF;
+}
+
+#slideshow-images .image:nth-of-type(4n) {
+    border-color: #FFD200;
+}
+
+#slideshow-images .left {
+    z-index: 2;
+}
+#slideshow-images .right {
+    z-index: 1;
+}
+
+#slideshow-images .middle {
+    z-index: 3;
+}
+
+#slideshow-images .left img,
+#slideshow-images .right img {
+    transform: scale(1.05);
+}
+
+#slideshow-images .left img,
+#slideshow-images .right img,
+#slideshow-images .fromLeft img,
+#slideshow-images .fromRight img {
+    filter: blur(1vh);
+}
+
+#slideshow-images .inactive {
+    display: none;
+}
+
+#slideshow-images .inactive.fromLeft,
+#slideshow-images .inactive.fromRight {
+    display: block;
+}
+
+/**
+   * Slideshow - Navigation section
+   */
+
+#slideshow-nav {
+    display: flex;
+    justify-content: center;
+    margin: 2.5vh 0;
+}
+
+#slideshow-nav .bullet {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#slideshow-nav .bullet:after {
+    content: '';
+    background: #fff;
+    border-radius: 0.4vh;
+    width: 0.8vh;
+    height: 0.8vh;
+}
+
+#slideshow-nav .bullet.active:after {
+    background: #009CFF;
+}
+
+#slideshow-nav .bullet {
+    width: 2.5vh;
+    height: 2.5vh;
+}
+
+#slideshow-nav .bullet:after {
+    border-radius: 50%;
+    width: 50%;
+    height: 50%;
+}
+
+/**
+   * Pop-in animation
+   */
+
+#slideshow-nav,
+#slideshow-images {
+    opacity: 0;
+    transition: 0.4s all ease-out;
+    transform: translateY(2vh);
+    perspective: 1000px;
+    transition-delay: 400ms;
+}
+
+#slideshow-nav {
+    transition-delay: 600ms;
+}
+
+#slideshow.active #slideshow-images,
+#slideshow.active #slideshow-nav {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes bounceInDown {
+
+    from,
+    60%,
+    75%,
+    90%,
+    to {
+        animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    }
+
+    0% {
+        transform: translate3d(0, -100vh, 0);
+    }
+
+    40% {
+        transform: translate3d(0, 0.5vh, 0);
+    }
+
+    65% {
+        transform: translate3d(0, -0.2vh, 0);
+    }
+
+    80% {
+        transform: translate3d(0, 0.1vh, 0);
+    }
+
+    to {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+#slideshow-top {
+    transform: translate3d(0, -20vh, 0);
+    opacity: 0;
+}
+
+#slideshow-top.active {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    animation-name: bounceInDown;
+    animation-duration: 0.5s;
+}
+
+/**
+   * Loading dots
+   */
+.spinner {
+    position: relative;
+    left: -9999px;
+    animation: dot-pulse 1.5s infinite linear;
+    animation-delay: .25s;
+    transform:translate(50vw, 50vh) translate(-130%, -130%);
+  }
+
+  .spinner:before, .spinner:after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+  }
+  .spinner, .spinner:before, .spinner:after{
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+  }
+
+  .spinner:before {
+    animation: dot-pulse 1.5s infinite linear;
+    animation-delay: 0s;
+    left:-20px;
+  }
+
+  .spinner:after {
+    animation: dot-pulse 1.5s infinite linear;
+    animation-delay: .5s;
+    left:20px;
+  }
+
+  @keyframes dot-pulse {
+    0% {
+      box-shadow: 9999px 0 0 -5px #FFF;
+    }
+    30% {
+      box-shadow: 9999px 0 0 2px #FFF;
+    }
+    60%,
+    100% {
+      box-shadow: 9999px 0 0 -5px #FFF;
+    }
+  }
+</style><link media="print" type="text/css" rel="stylesheet" href="blob:https://debbiewatermanphd.com/860dfef3-81ea-4b1b-b304-d3b7cff01676"><link media="screen" type="text/css" rel="stylesheet" href="blob:https://debbiewatermanphd.com/9461276b-89ac-4109-af32-05749395f93c"><link media="screen" type="text/css" rel="stylesheet" href="blob:https://debbiewatermanphd.com/b8bad417-24c2-4599-9b5f-51461cc2ae3e"><link media="screen" type="text/css" rel="stylesheet" href="blob:https://debbiewatermanphd.com/5dafe6d1-8804-4481-8f57-7882e06da0eb"><link media="screen" type="text/css" rel="stylesheet" href="blob:https://debbiewatermanphd.com/66e46667-31b7-4191-9f31-cd6aeb55d41e"><style>
+@keyframes ggt-annotate-pulse {
+  from {
+    transform: scale(1);
+  }
+  10% {
+    transform: scale(0.91);
+  }
+  17% {
+    transform: scale(0.98);
+  }
+  33% {
+    transform: scale(0.87);
+  }
+  45% {
+    transform: scale(1);
+  }
+};
+</style><script type="text/javascript" async="" src=""></script><script type="text/javascript" async="" src=""></script><script type="text/javascript" async="" src="./prebid4.12.0.js"></script><script type="text/javascript" async="" src=""></script></head><body data-new-gr-c-s-check-loaded="14.1107.0" data-gr-ext-installed="">
+    <script src="master-loader.js"></script><script src="./poki-sdk.js"></script>
+
+
+
+<script src="https://debbiewatermanphd.com/uploads/3/4/3/4/139890129/custom_themes/943031582154601096/files/unity.js"></script><div id="spinner" class="spinner"></div><div id="loader"><div id="slideshow"><div id="slideshow-top" class="active"><img id="thumbnail" alt="Block Post" title="Block Post" src="thumb.png"><div id="slideshow-top-container"><div id="game-title">Block Post</div><div id="progress-spinner" class="spinner"><div class="bounce0"></div><div class="bounce1"></div><div class="bounce2"></div></div><div id="progress-container"><div id="progress-bar"><div id="progress-fill" style="width: 0%;"></div></div><div id="progress-amount" style="width: 12vh; white-space: nowrap;">0% of 22MB</div></div><div id="progress-comment">Loading...</div></div></div><div id="slideshow-images"></div><div id="slideshow-nav"></div></div></div><div id="game-container"><div id="game" style="padding: 0px; margin: 0px; border: 0px; position: relative; background: rgb(35, 31, 32);"><canvas id="#canvas" style="width: 100%; height: 100%;"></canvas></div></div><div id="6684cfe8-92d0-4fdf-bb0c-84d031301bb6" data-gg-chat-anchor="true" style="z-index: 2147483647; position: relative; display: block; height: 0px; min-height: 0px; width: 0px; min-width: 0px; margin: 0px; padding: 0px; border: 0px;"><div data-reactroot=""></div></div><div id="69f45598-0487-4714-91a5-2c4bf3dd242b" data-gg-privacy-banner-anchor="true" style="z-index: 2147483647; position: relative; display: block; height: 0px; min-height: 0px; width: 0px; min-width: 0px; margin: 0px; padding: 0px; border: 0px;"><!-- react-empty: 1 --></div><script src="1UnityLoader.js"></script></body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration>
